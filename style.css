@@ -1,0 +1,78 @@
+body {
+  font-family: "Noto Sans Georgian", sans-serif;
+  text-align: center;
+  margin: 40px;
+  background-color: #0c0c10;
+}
+
+#wordDisplay {
+  font-size: 26px;
+  margin: 20px auto;
+  height: 6em;
+  line-height: 2;
+  width: fit-content;
+  max-width: 90%;
+  overflow-y: hidden;
+  border: none;
+  outline: none;
+  padding: 10px;
+  user-select: none;
+  overflow: hidden;
+  text-align: left;
+  color: #454864;
+}
+
+.line {
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+#lineContainer {
+  transition: transform 0.2s ease;
+}
+
+#wordDisplay span.correct {
+  color: #f6f5f5;
+}
+
+#wordDisplay span.incorrect {
+  color: #e7414c;
+}
+
+#wordDisplay span.current {
+  text-decoration: underline;
+}
+
+#timer {
+  font-size: 18px;
+  padding: 10px 20px;
+  color: #f6f5f5;
+}
+
+#results {
+  font-size: 20px;
+  margin-top: 30px;
+  color: #f6f5f5;
+}
+
+.timerButton {
+  font-size: 18px;
+  padding: 10px 20px;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: #454864;
+  cursor: pointer;
+}
+
+.timerButton.selected {
+  color: #f6f5f5;
+}
+
+.timerButton.hidden {
+  display: none;
+}
+
+.timerButton.centered {
+  display: none;
+}

@@ -2,12 +2,14 @@ const wordDisplay = document.getElementById("wordDisplay");
 const timerDisplay = document.getElementById("timer");
 const results = document.getElementById("results");
 const timerButtons = document.querySelectorAll(".timerButton");
+const resetButton = document.getElementById("resetTestButton");
 
 let words = [];
 let currentIndex = 0;
 let allChars = [];
 let typedChars = [];
 let correctChars = 0;
+let incorrectChars = 0;
 let totalTyped = 0;
 let timer = 30;
 let countdownStarted = false;
@@ -19,13 +21,15 @@ let charsTypedSinceLastSpace = 0;
 let committedIndex = 0;
 let firstScroll = true;
 let initialTimer = 30;
+let generatedText = "";
+
 
 fetch("words.json")
   .then((response) => response.json())
   .then((data) => {
     words = data.words;
-    allLines = generateWords();
-    renderText(allLines);
+    generatedText = generateWords();
+    renderText(generatedText);
   })
   .catch((error) => console.error("Error loading words:", error));
 
@@ -36,45 +40,30 @@ function generateWords() {
     () => words[Math.floor(Math.random() * words.length)]
   );
 
-  const lines = [];
-  for (let i = 0; i < wordList.length; i += 8) {
-    lines.push(wordList.slice(i, i + 8).join(" "));
-  }
-
-  return lines;
+  return wordList.join(" ");
 }
 
 const lineContainer = document.getElementById("lineContainer");
 
-function renderText(linesToRender) {
+function renderText(text) {
   lineContainer.innerHTML = "";
   allChars = [];
-
-  linesToRender.forEach((lineText, lineIndex) => {
-    const lineDiv = document.createElement("div");
-    lineDiv.className = "line";
-
-    lineText.split("").forEach((char) => {
-      const span = document.createElement("span");
-      span.textContent = char;
-      if (allChars.length === 0) span.classList.add("current");
-      lineDiv.appendChild(span);
-      allChars.push(span);
-    });
-
-    const spaceSpan = document.createElement("span");
-    spaceSpan.textContent = " ";
-    lineDiv.appendChild(spaceSpan);
-    allChars.push(spaceSpan);
-
-    lineContainer.appendChild(lineDiv);
+  
+  text.split("").forEach((char, index) => {
+    const span = document.createElement("span");
+    span.textContent = char;
+    if (index === 0) span.classList.add("current");
+    lineContainer.appendChild(span);
+    allChars.push(span);
   });
 
   wordDisplay.focus();
 }
 
 function startTest() {
-  timerDisplay.style.display = "block";
+  timerDisplay.style.visibility = "visible";
+  resetButton.style.visibility = "visible";
+  incorrectChars = 0;
   results.innerHTML = "";
   currentIndex = 0;
   typedChars = [];
@@ -87,13 +76,13 @@ function startTest() {
   currentLineIndex = 0;
   committedIndex = 0;
 
-  renderText(allLines);
+  renderText(generatedText);
   startTimer();
 }
 
 function startTimer() {
   timerDisplay.textContent = `${timer}`;
-  timerDisplay.style.display = "block";
+  timerDisplay.style.visibility = "visible";
   const buttons = document.querySelectorAll(".timerButton");
   buttons.forEach((btn) => {
     btn.classList.add("hidden");
@@ -108,12 +97,17 @@ function startTimer() {
   }, 1000);
 }
 
+resetButton.addEventListener("click", () => {
+  window.location.reload();
+});
+
 function endTest() {
+  resetButton.style.visibility = "hidden";
   document.removeEventListener("keydown", handleKey);
   const timeInMinutes = initialTimer / 60;
   const wpm = Math.round(correctChars / 5 / timeInMinutes);
-  const accuracy =
-    totalTyped > 0 ? Math.round((correctChars / totalTyped) * 100) : 0;
+  const totalEvaluated = correctChars + incorrectChars;
+  const accuracy = totalEvaluated > 0 ? Math.round((correctChars / totalEvaluated) * 100) : 0;
   results.innerHTML = `
 <p><strong>შედეგები:</strong></p>
 <p>სისწრაფე: ${wpm} სიტყვა/წუთში</p>
@@ -123,7 +117,15 @@ function endTest() {
 
 function handleKey(e) {
   if (!countdownStarted) {
-    startTest();
+    if (
+      e.key.length === 1 ||
+      e.key === " " ||
+      e.key === "Backspace"
+    ) {
+      startTest();
+    } else {
+      return;
+    }
   }
 
   const char = e.key;
@@ -132,9 +134,19 @@ function handleKey(e) {
     char === "Shift" ||
     char === "Alt" ||
     char === "Control" ||
-    char === "Meta"
-  )
+    char === "Meta" ||
+    char === "Tab" ||
+    char === "CapsLock" ||
+    char === "Enter" ||
+    char === "ArrowLeft" ||
+    char === "ArrowRight" ||
+    char === "ArrowUp" ||
+    char === "ArrowDown" ||
+    char === "Escape" ||
+    char.startsWith("F")
+  ) {
     return;
+  }
 
   if (char === "Backspace") {
     if (currentIndex > 0) {
@@ -155,31 +167,7 @@ function handleKey(e) {
     correctChars++;
   } else {
     currentChar.classList.add("incorrect");
-  }
-
-  if (currentIndex === committedIndex) {
-    committedIndex++;
-
-    if (
-      currentChar.textContent !== " " &&
-      allChars[committedIndex] &&
-      allChars[committedIndex].textContent === " "
-    ) {
-      currentWordIndex++;
-    }
-  }
-
-  if (
-    char === " " &&
-    currentWordIndex > 0 &&
-    ((firstScroll && currentWordIndex % 16 === 0) ||
-      (!firstScroll && currentWordIndex % 8 === 0))
-  ) {
-    if (firstScroll) {
-      firstScroll = false;
-    }
-    currentLineIndex++;
-    lineContainer.style.transform = `translateY(-${currentLineIndex * 2.02}em)`;
+    incorrectChars++;
   }
 
   currentChar.classList.remove("current");
@@ -188,7 +176,18 @@ function handleKey(e) {
     allChars[currentIndex].classList.add("current");
   }
   totalTyped++;
+
+  const currentSpan = document.querySelector("#wordDisplay .current");
+  if (currentSpan) {
+    const offset = currentSpan.offsetTop;
+    const lineHeight = parseFloat(getComputedStyle(wordDisplay).lineHeight);
+    const containerHeight = wordDisplay.clientHeight;
+    const desiredOffset = containerHeight / 2 - lineHeight / 2;
+    const scroll = Math.max(0, offset - desiredOffset);
+    lineContainer.style.transform = `translateY(-${scroll}px)`;
+  }
 }
+
 
 document.addEventListener("keydown", handleKey);
 

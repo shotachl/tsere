@@ -1,66 +1,35 @@
 body {
   font-family: "Noto Sans Georgian", sans-serif;
-  text-align: center;
-  margin: 40px;
+  margin: 0;
   background-color: #0c0c10;
-}
-
-#wordDisplay {
-  font-size: 26px;
-  margin: 20px auto;
-  height: 6em;
-  line-height: 2;
-  width: fit-content;
-  max-width: 90%;
-  overflow-y: hidden;
-  border: none;
-  outline: none;
-  padding: 10px;
-  user-select: none;
+  color: #f6f5f5;
+  height: 100vh;
   overflow: hidden;
-  text-align: left;
-  color: #454864;
+  display: flex;
+  flex-direction: column;
 }
 
-.line {
-  white-space: normal;
-  word-wrap: break-word;
+h1 {
+  margin: 20px;
+  position: absolute;
+  top: 0;
+  left: 20px;
+  font-size: 32px;
 }
 
-#lineContainer {
-  transition: transform 0.2s ease;
-}
-
-#wordDisplay span.correct {
-  color: #f6f5f5;
-}
-
-#wordDisplay span.incorrect {
-  color: #e7414c;
-}
-
-#wordDisplay span.current {
-  text-decoration: underline;
-}
-
-#timer {
-  font-size: 18px;
-  padding: 10px 20px;
-  color: #f6f5f5;
-}
-
-#results {
-  font-size: 20px;
-  margin-top: 30px;
-  color: #f6f5f5;
+#topArea {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  justify-content: center;
+  align-items: center;
 }
 
 .timerButton {
   font-size: 18px;
-  padding: 10px 20px;
+  padding: 5px 20px;
   background-color: transparent;
   border: none;
-  outline: none;
   color: #454864;
   cursor: pointer;
 }
@@ -73,6 +42,65 @@ body {
   display: none;
 }
 
-.timerButton.centered {
-  display: none;
+#timer {
+  font-size: 18px;
+  padding: 5px;
+  visibility: hidden;
+  height: 24px;
+  text-align: center;
+}
+
+.mainArea {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  transform: translateY(-10%);
+}
+
+#wordDisplay {
+  font-size: 28px;
+  line-height: 2;
+  height: calc(2em * 3);
+  width: fit-content;
+  max-width: 70%;
+  overflow: hidden;
+  padding: 10px;
+  text-align: left;
+  color: #454864;
+  user-select: none;
+  outline: none;
+  position: relative;
+}
+
+#wordDisplay span.correct {
+  color: #f6f5f5;
+}
+#wordDisplay span.incorrect {
+  color: #e7414c;
+}
+#wordDisplay span.current {
+  text-decoration: underline;
+}
+
+#lineContainer {
+  display: inline-block;
+  transition: transform 0.2s ease;
+  will-change: transform;
+}
+
+#resetTestButton {
+  padding: 10px;
+  font-size: 23px;
+  background-color: transparent;
+  border: none;
+  color: #454864;
+  cursor: pointer;
+  visibility: hidden;
+  align-self: center;
+}
+
+#resetTestButton:hover {
+  color: #f6f5f5;
 }
